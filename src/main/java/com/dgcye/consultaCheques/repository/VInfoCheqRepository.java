@@ -10,6 +10,6 @@ public interface VInfoCheqRepository extends JpaRepository<VInfoCheq, Long>{
 	
 	List<VInfoCheq> findByDocuAndSecuAndPerOpagoAndMuestra(String documento, Integer secuencia, Integer perOpago, String muestra);
 	List<VInfoCheq> findByDocuAndPerOpagoAndMuestra(String documento, Integer perOpago, String muestra);
-	VInfoCheq findByDocuAndSecuAndPerOpagoAndFecAfecAndOpidAndNroCheqOrderByPerOpago(String documento, Integer secu, String fecha, Integer fecAfec, Integer opid, Integer nrocheq);
+	VInfoCheq findByDocuAndSecuAndPerOpagoAndFecAfecAndOpidAndNroCheqOrderByPerOpago(String documento, Integer secu, Integer fecha, Integer fecAfec, Integer opid, Integer nrocheq);
 
 }

@@ -7,7 +7,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 
-
 /*
  * 
 the browser looks for an HTTP header named Access-Control-Allow-Origin in the response.
@@ -19,24 +18,25 @@ again passing or blocking the response depending on the Access-Control-Allow-Ori
 
 */
 
-
 @Configuration
 public class RestConfig {
+
+	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.addAllowedOrigin("*");
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("OPTIONS");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("POST");
+		config.addAllowedMethod("PUT");
+		config.addAllowedMethod("DELETE");
+		source.registerCorsConfiguration("/**", config);
+		return new CorsFilter(source);
+	}
 	
-	 @Bean
-	    public CorsFilter corsFilter() {
-	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	        CorsConfiguration config = new CorsConfiguration();
-	        config.setAllowCredentials(true);
-	        config.addAllowedOrigin("*");
-	        config.addAllowedHeader("*");
-	        config.addAllowedMethod("OPTIONS");
-	        config.addAllowedMethod("GET");
-	        config.addAllowedMethod("POST");
-	        config.addAllowedMethod("PUT");
-	        config.addAllowedMethod("DELETE");
-	        source.registerCorsConfiguration("/**", config);
-	        return new CorsFilter(source);
-	    }
+
 
 }

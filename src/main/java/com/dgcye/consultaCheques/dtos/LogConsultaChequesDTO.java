@@ -5,7 +5,6 @@ import java.util.Date;
 import com.dgcye.consultaCheques.model.Logconsultacheques;
 
 public class LogConsultaChequesDTO {
-	private Integer id;
 	private String docuConsulta;
 	private Integer secuConsulta;
 	private Integer ejercicioConsulta;
@@ -15,7 +14,6 @@ public class LogConsultaChequesDTO {
 	public LogConsultaChequesDTO(Logconsultacheques l) {
 		super();
 		// TODO Auto-generated constructor stub
-		this.id = l.getId();
 		this.docuConsulta = l.getDocuConsulta();
 		this.secuConsulta = l.getEjercicioConsulta();
 		this.ejercicioConsulta = l.getEjercicioConsulta();
@@ -27,12 +25,7 @@ public class LogConsultaChequesDTO {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
+	
 	public String getDocuConsulta() {
 		return docuConsulta;
 	}

@@ -1,5 +1,6 @@
 package com.dgcye.consultaCheques.services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.dgcye.consultaCheques.dtos.DatosPersonaDTO;
 import com.dgcye.consultaCheques.model.Cambdoc;
+import com.dgcye.consultaCheques.model.DatosAdicionalesPers;
 import com.dgcye.consultaCheques.model.Ecargo;
 import com.dgcye.consultaCheques.model.Pers;
 import com.dgcye.consultaCheques.repository.CambDocRepository;
@@ -30,9 +32,12 @@ public class PersonaService {
 
 	public Boolean verSiHuboCambios(String documento) {
 		// TODO Auto-generated method stub
-		List<Cambdoc> cambiosEnElDoc = cambDocRepository.findByDocunewAndVigh(documento, new Date());
+		LocalDate localDate = LocalDate.of(9999, 1, 1);
+		java.util.Date date = java.sql.Date.valueOf(localDate);
+		List<Cambdoc> cambiosEnElDoc = cambDocRepository.findByDocunewAndVigh(documento, date);
 		if (cambiosEnElDoc.size() == 0) {
-			List<Cambdoc> cambiosEnElDocIntermedios = cambDocRepository.findByDocunewAndVighNot(documento, new Date());
+			
+			List<Cambdoc> cambiosEnElDocIntermedios = cambDocRepository.findByDocunewAndVighNot(documento, date);
 			for (int i = 0; i < cambiosEnElDocIntermedios.size(); i++) {
 				Cambdoc cdoc = cambiosEnElDocIntermedios.get(i);
 				int puntsig = cdoc.getIdcambdoc();
@@ -53,9 +58,11 @@ public class PersonaService {
 	public List<DatosPersonaDTO> mostrarDatosCambiados(String documento) {
 		// TODO Auto-generated method stub
 		List<DatosPersonaDTO> datosDocusIntermedios = new ArrayList<DatosPersonaDTO>();
-		List<Cambdoc> cambiosEnElDoc = cambDocRepository.findByDocunewAndVigh(documento, new Date());
+		LocalDate localDate = LocalDate.of(9999, 12, 1);
+		java.util.Date date = java.sql.Date.valueOf(localDate);
+		List<Cambdoc> cambiosEnElDoc = cambDocRepository.findByDocunewAndVigh(documento, date);
 		if (cambiosEnElDoc.size() == 0) {
-			List<Cambdoc> cambiosEnElDocIntermedios = cambDocRepository.findByDocunewAndVighNot(documento, new Date());
+			List<Cambdoc> cambiosEnElDocIntermedios = cambDocRepository.findByDocunewAndVighNot(documento, date);
 			for (int i = 0; i < cambiosEnElDocIntermedios.size(); i++) {
 				Cambdoc cdoc = cambiosEnElDocIntermedios.get(i);
 				int puntsig = cdoc.getIdcambdoc();
@@ -65,7 +72,7 @@ public class PersonaService {
 					puntsig = cdoc.getIdsig();
 				}
 				if (cdoc != null) {
-					Pers p = personaRepository.findByDocuAndVigh(cdoc.getDocunew(), new Date());
+					Pers p = personaRepository.findByDocuAndVigh(cdoc.getDocunew(), date);
 					DatosPersonaDTO dDto = new DatosPersonaDTO(p);
 					datosDocusIntermedios.add(dDto);
 				}
@@ -78,8 +85,8 @@ public class PersonaService {
 	public List<DatosPersonaDTO> obtenerPersonas(String apeYnom) {
 		// TODO Auto-generated method stub
 		List<DatosPersonaDTO> datosPersona = new ArrayList<DatosPersonaDTO>();
-		List<Pers> personas = personaRepository.findByNombreLikeOrderByDocuAsc(apeYnom);
-		List<Ecargo> ecargos = ecargoRepository.findByApynomLikeOrderByDocuAsc(apeYnom);
+		List<Pers> personas = personaRepository.findByNombreLikeOrderByDocuAsc(apeYnom.toUpperCase()+"%");
+		List<Ecargo> ecargos = ecargoRepository.findByApynomLikeOrderByDocuAsc(apeYnom.toUpperCase());
 		Integer cantidadPersonas = personas.size() ;
 		Integer cantidadEcargos = ecargos.size();
 		if( (cantidadEcargos+cantidadPersonas) > 100) {
@@ -94,6 +101,21 @@ public class PersonaService {
 
 	private void cargarEstabPorDocumento(List<DatosPersonaDTO> datosPersona) {
 		// TODO Auto-generated method stub
+		/*
+		 * "select  *  from (select distinct p.nombre,p.docu, e.dependencia, d.distrito,d.descripcion , e.tipo_org, e.numero, c.reg ,'v' prov"
+		+ " from( ((dge.cargo c inner join dge.pers p on c.pin=p.pin)"
+		+ " inner join dge.estab e on e.escuid = c.escuid) inner join dge.distrito d on d.distrito = e.distrito)"
+		+ " where p.docu = ? and p.vigh = '01/12/9999'  and c.vigh = '01/12/9999'  and e.vigh = '01/12/9999'"
+		+ " union "
+		+ " select distinct apynom nombre,docu,0 dependencia, dist distrito, d1.descripcion, ' '  tipo_org, escue numero,' ' reg ,   'e' prov"
+		+ " from dge.ecargo e1 inner join dge.distrito d1 on d1.distrito = e1.dist where e1.docu = ? ) as tt order by prov desc fetch first 1 rows only";
+		 * */
+		
+		DatosAdicionalesPers datosAdicionalesPers = new DatosAdicionalesPers();
+		for(DatosPersonaDTO pers : datosPersona) {
+		  // ejecutar query para consultar datos adicionales de la persona
+			// pasarle los datos a la persona
+		}
 		
 	}
 

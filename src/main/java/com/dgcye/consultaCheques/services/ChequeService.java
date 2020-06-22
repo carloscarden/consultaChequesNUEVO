@@ -34,6 +34,7 @@ import com.dgcye.consultaCheques.repository.VInfoCheqRepository;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
+
 @Service
 public class ChequeService {
 	@Autowired
@@ -63,7 +64,7 @@ public class ChequeService {
 	@Autowired
 	private VEDetalleRepository vEDetalleRepository;
 
-	public List<DetPeriodoDTO> obtenerCheque(String documento, String secuencia, Integer desde, Boolean checkCd) {
+	public List<DetPeriodoDTO> obtenerCheque(String documento, String secuencia, Integer desde, String checkCd) {
 		// TODO Auto-generated method stub
 		List<CambDocPerDTO> vcdoc = new ArrayList<CambDocPerDTO>();
 		generarCambDocPer13(documento, desde, checkCd, vcdoc);
@@ -141,10 +142,10 @@ anio);
 
 	}
 
-	private void generarCambDocPer13(String documento, Integer desde, Boolean checkCd, List<CambDocPerDTO> vcdoc) {
+	private void generarCambDocPer13(String documento, Integer desde, String checkCd, List<CambDocPerDTO> vcdoc) {
 		// TODO Auto-generated method stub
 		List<Cambdoc> cdocfinal = cambDocRepository.findByDocunewAndVigh(documento, new Date());
-		if (checkCd) {
+		if (checkCd.equals("si")) {
 			for (int i = 1; i < 13; i++) {
 				CambDocPerDTO cdocper = new CambDocPerDTO();
 				cdocper.setDocumento(documento);
@@ -156,55 +157,69 @@ anio);
 			}
 
 		} else {
-			/*
-			 * caso 1 : encontro el docu. ingresado como fin de la tabla en cambdoc
-			 */
-			for (int i = 0; i < cdocfinal.size(); i++) {
-				Cambdoc cdoc = (Cambdoc) cdocfinal.get(i);
-				int puntant = cdoc.getIdcambdoc();
-				do {
+			if (cdocfinal.size() == 0) {
+				for (int i = 1; i < 13; i++) {
+					CambDocPerDTO cdocper = new CambDocPerDTO();
+					cdocper.setDocumento(documento);
+					NumberFormat nf = NumberFormat.getIntegerInstance();
+					nf.setMinimumIntegerDigits(2);
+					nf.setMaximumIntegerDigits(2);
+					cdocper.setPeriodo(desde + nf.format(new Integer(i)));
+					vcdoc.add(cdocper);
+				}
+			} else {
+				/*
+				 * caso 1 : encontro el docu. ingresado como fin de la tabla en cambdoc
+				 */
+				for (int i = 0; i < cdocfinal.size(); i++) {
+					Cambdoc cdoc = (Cambdoc) cdocfinal.get(i);
+					int puntant = cdoc.getIdcambdoc();
+					do {
 
-					for (int j = 1; j < 13; j++) {
-						NumberFormat nf = NumberFormat.getIntegerInstance();
-						nf.setMinimumIntegerDigits(2);
-						nf.setMaximumIntegerDigits(2);
+						for (int j = 1; j < 13; j++) {
+							NumberFormat nf = NumberFormat.getIntegerInstance();
+							nf.setMinimumIntegerDigits(2);
+							nf.setMaximumIntegerDigits(2);
 
-						int fecha = Integer.parseInt(desde + nf.format(new Integer(j)) + "01");
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-						int vigd = Integer.parseInt(sdf.format(cdoc.getVigd()));
-						int vigh = Integer.parseInt(sdf.format(cdoc.getVigh()));
+							int fecha = Integer.parseInt(desde + nf.format(new Integer(j)) + "01");
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+							int vigd = Integer.parseInt(sdf.format(cdoc.getVigd()));
+							int vigh = Integer.parseInt(sdf.format(cdoc.getVigh()));
 
-						// Este IF estaba comentado, es decir siempre trataba de
-						// insertarlo en resul
-						// a partir de 06/07/2007 lo descomente por un reclamo
-						// (24040932) DPP
+							// Este IF estaba comentado, es decir siempre trataba de
+							// insertarlo en resul
+							// a partir de 06/07/2007 lo descomente por un reclamo
+							// (24040932) DPP
 
-						// Nueva modificacion a partir de 01/01/2008 para q si o
-						// si inserte el documento
-						// ingresado , por reclamo (16862324)
+							// Nueva modificacion a partir de 01/01/2008 para q si o
+							// si inserte el documento
+							// ingresado , por reclamo (16862324)
 
-						if (documento.equals(cdoc.getDocunew())) {
-							CambDocPerDTO cdocper = new CambDocPerDTO();
-							cdocper.setDocumento(cdoc.getDocunew());
-							cdocper.setPeriodo(String.valueOf(fecha).substring(0, 6));
-							if (!vcdoc.contains(cdocper)) {
-								vcdoc.add(cdocper);
-							}
+							if (documento.equals(cdoc.getDocunew())) {
+								CambDocPerDTO cdocper = new CambDocPerDTO();
+								cdocper.setDocumento(cdoc.getDocunew());
+								cdocper.setPeriodo(String.valueOf(fecha).substring(0, 6));
+								if (!vcdoc.contains(cdocper)) {
+									vcdoc.add(cdocper);
+								}
 
-						} else if ((fecha >= vigd) && (fecha <= vigh)) {
-							CambDocPerDTO cdocper = new CambDocPerDTO();
-							cdocper.setDocumento(cdoc.getDocunew());
-							cdocper.setPeriodo(String.valueOf(fecha).substring(0, 6));
-							if (!vcdoc.contains(cdocper)) {
-								vcdoc.add(cdocper);
+							} else if ((fecha >= vigd) && (fecha <= vigh)) {
+								CambDocPerDTO cdocper = new CambDocPerDTO();
+								cdocper.setDocumento(cdoc.getDocunew());
+								cdocper.setPeriodo(String.valueOf(fecha).substring(0, 6));
+								if (!vcdoc.contains(cdocper)) {
+									vcdoc.add(cdocper);
+								}
 							}
 						}
-					}
-					puntant = cdoc.getIdant();
-					cdoc = cambDocRepository.findByIdcambdoc(puntant);
+						puntant = cdoc.getIdant();
+						cdoc = cambDocRepository.findByIdcambdoc(puntant);
 
-				} while (puntant != 0);
+					} while (puntant != 0);
+				}
+				
 			}
+
 
 		}
 
@@ -246,7 +261,7 @@ anio);
 		if (Integer.parseInt(anio) > 1999) {
 			/* order by peropago, secu, fecafec */
 			VInfoCheq cheq = vInfoCheqRepository.findByDocuAndSecuAndPerOpagoAndFecAfecAndOpidAndNroCheqOrderByPerOpago(
-					documento, secu, fecha, fechaAfec, ordenPago, numeroCheque);
+					documento, secu, Integer.parseInt(fecha), fechaAfec, ordenPago, numeroCheque);
 
 			if ((cheq.getEscuidInt() != null) && (cheq.getEscuidEscart() != null)) {
 				Dep dep = depRepository.findByDep(cheq.getDependenciaInt().intValue());

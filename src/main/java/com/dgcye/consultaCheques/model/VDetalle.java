@@ -5,9 +5,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Table;
 
 
 @Entity
+@Table(name ="V_DETALLES")
 @IdClass(VDetalle.class)
 public class VDetalle implements Serializable {
 	/**
@@ -40,7 +42,7 @@ public class VDetalle implements Serializable {
 	@Column(name = "pesossubv")
 	double pesossubv;
 	
-	@Column(name = "descripcioncodigo")
+	@Column(name = "DESCRIPCION_CODIGO")
 	String descripcioncodigo;
 	
 	@Column(name = "imputa")
